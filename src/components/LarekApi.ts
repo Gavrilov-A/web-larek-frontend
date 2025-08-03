@@ -9,10 +9,14 @@ interface ILarekApi {
 
 export class LarekApi extends Api {
     getProductList(){
+        
+    }
+
+    getProductById(){
 
     }
 
-    getProductById(){}
+    postOrder(){
 
-    postOrder(){}
+    }
 }

@@ -20,6 +20,19 @@ export class BasketItemView {
       
     }
 
+}
+
+export class BasketView {
+    protected item: HTMLLIElement
+    protected list: [];
+    protected title: HTMLSpanElement;
+    protected totalPrice: HTMLSpanElement;
+    protected button: HTMLButtonElement;
+
+    constructor(protected container: HTMLElement, protected events: IEvents){
+        
+    }
+
 
 }
 

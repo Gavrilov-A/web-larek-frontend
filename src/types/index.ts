@@ -7,31 +7,42 @@ export interface IProduct {
 	price: number | null;
 }
 
-export interface IProductList {
-	total: number;
-	items: IProduct[];
-}
-
 export interface IOrder {
 	payment: string;
 	email: string;
 	phone: string;
 	address: string;
 	total: number;
-	items: TProductId[];
+	items: string[];
 }
 
+export interface IProductList {
+	total: number;
+	items: IProduct[];
+}
 
-export type TProductId = Pick<IProduct, 'id'>;
+export interface IProductsData {
+	items: IProduct[];
+	preview: string | null;
+	setProductList(productData: IProduct): IProductList; 
+	getProducts(): IProductList;
+	getProduct(productList: IProductList): IProduct[];
+}
 
-export type TBasketItem = Pick<IProduct, 'title' | 'price'>
+export interface IOrderData {
+	products: IProduct[];
+	addProduct(product: TBasketItem): void;
+	deleteProduct(idProduct: string): void;
+	getTotal(): number;
+	checkValidation(
+		data:
+			| Record<keyof TOrderPayment, string>
+			| Record<keyof TOrderContacts, string>
+	): boolean;
+}
 
-export type TBasketPrice = Pick<IProduct, 'id' | 'price'>
+export type TBasketItem = Pick<IProduct, 'id' | 'title' | 'price'>;
 
-export type TOrderPayment = Pick<IOrder, 'payment' | 'address'>
+export type TOrderPayment = Pick<IOrder, 'payment' | 'address'>;
 
-export type TOrderContacts = Pick<IOrder, 'email' | 'phone'>
-
-
-
-
+export type TOrderContacts = Pick<IOrder, 'email' | 'phone'>;
