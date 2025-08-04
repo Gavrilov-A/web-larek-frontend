@@ -16,6 +16,11 @@ export interface IOrder {
 	items: string[];
 }
 
+export interface IOrderResult {
+	id: string,
+	total: number
+}
+
 export interface IProductList {
 	total: number;
 	items: IProduct[];
@@ -24,7 +29,7 @@ export interface IProductList {
 export interface IProductsData {
 	items: IProduct[];
 	preview: string | null;
-	setProductList(productData: IProduct): IProductList; 
+	setProductList(productData: IProduct): IProductList;
 	getProducts(): IProductList;
 	getProduct(productList: IProductList): IProduct[];
 }

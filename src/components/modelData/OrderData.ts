@@ -26,6 +26,7 @@ export class OrderModel {
             if (!this._basket.find(item => item.id === id)) {
                 this._basket.push({
                     id: product.id,
+                    title: product.title,
                     price: product.price
                 })
                 this._order.items.push(id)

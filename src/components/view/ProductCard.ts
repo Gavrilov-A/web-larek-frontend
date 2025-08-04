@@ -1,12 +1,12 @@
 import { ensureElement } from '../../utils/utils';
-import { IEvents } from './../base/events';
+import { IEvents } from '../base/events';
 
-export interface IProductCardView {
+export interface IProductCard {
     content: HTMLElement;
 }
 
 
-export class ProductCardView{
+export class ProductCard {
   protected _category: HTMLSpanElement;
   protected _title: HTMLHeadingElement;
   protected _image: HTMLImageElement;
