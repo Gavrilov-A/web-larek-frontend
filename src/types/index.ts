@@ -29,9 +29,9 @@ export interface IProductList {
 export interface IProductsData {
 	items: IProduct[];
 	preview: string | null;
-	setProductList(productData: IProduct): IProductList;
+	setProductList(productData: IProduct[]): void;
 	getProducts(): IProductList;
-	getProduct(productList: IProductList): IProduct[];
+	getProductById(id: string): IProduct;
 }
 
 export interface IOrderData {

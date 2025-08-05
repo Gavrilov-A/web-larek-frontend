@@ -1,22 +1,24 @@
-import { IOrder, IProduct } from "../../types/index";
+import { IOrder, IProduct, IProductList, IProductsData } from "../../types/index";
 import { IEvents } from "../base/events";
 
-export class ProductModel {
-    protected items: IProduct[] = [];
-    protected preview: string | null;
+export class ProductData {
+    protected _productList: IProductList;
+    protected _preview: string | null;
 
     constructor(protected events: IEvents) { }
 
-    getItems(): IProduct[] {//получаем массив карточек товара
-        return this.items
+    setProductList(objCards: IProductList) { //заполняем массив
+        this._productList.items = objCards.items
     }
 
-    getItem(id: string): IProduct { //получаем объект по id
-        return this.items.find(item => item.id === id)
+    getProductList(): IProduct[] {//получаем массив карточек товара
+        return this._productList.items
     }
 
-    setItems(items: IProduct[]) { //заполняем массив
-        this.items = items;
-    }
+    // getProductById(id: string): IProduct { //получаем объект по id
+    //     return this._items.find(item => item.id === id)
+    // }
+
+    
 }
 
