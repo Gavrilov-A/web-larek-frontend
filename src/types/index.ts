@@ -26,11 +26,9 @@ export interface IProductList {
 	items: IProduct[];
 }
 
-export interface IProductsData {
-	items: IProduct[];
-	preview: string | null;
-	setProductList(productData: IProduct[]): void;
-	getProducts(): IProductList;
+export interface IProductData {
+	setProductList(items: IProduct[]): void;
+	getProductList(): IProduct[];
 	getProductById(id: string): IProduct;
 }
 

@@ -1,4 +1,5 @@
 import { ensureElement } from "../../utils/utils";
+import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
 // Интерфейс для данных, которые передаются в render
@@ -7,26 +8,25 @@ export interface IModalData {
 }
 
 // Вью модального окна
-export class ModalView {
-    protected _container: HTMLElement;
+export class Modal extends Component<IModalData>{
     protected _closeButton: HTMLButtonElement;
     protected _content: HTMLElement;
 
-    constructor(protected container: HTMLElement, protected events: IEvents) {
-        this._container = container;
+    constructor(container: HTMLElement, protected events: IEvents) {
+        super(container)
 
         this._closeButton = ensureElement<HTMLButtonElement>(
             '.modal__close',
-            this._container
+            this.container
         );
-        this._content = ensureElement<HTMLElement>('.modal__content', this._container);
+        this._content = ensureElement<HTMLElement>('.modal__content', this.container);
 
         // Закрытие по крестику
         this._closeButton.addEventListener('click', this.close.bind(this));
 
         // Закрытие по клику на фон (но не по контенту)
-        this._container.addEventListener('click', (event) => {
-            if (event.target === this._container) {
+        this.container.addEventListener('click', (event) => {
+            if (event.target === this.container) {
                 this.close();
             }
         });
@@ -48,13 +48,13 @@ export class ModalView {
 
     // Открытие модального окна
     open(): void {
-        this._container.classList.add('modal_active');
+        this.container.classList.add('modal_active');
         this.events.emit('modal:open');
     }
 
     // Закрытие модального окна
     close(): void {
-        this._container.classList.remove('modal_active');
+        this.container.classList.remove('modal_active');
         this.content = null; // Очистка контента
         this.events.emit('modal:close');
     }
@@ -63,6 +63,6 @@ export class ModalView {
     render(data: IModalData): HTMLElement {
         this.content = data.content;
         this.open();
-        return this._container;
+        return this.container;
     }
 }

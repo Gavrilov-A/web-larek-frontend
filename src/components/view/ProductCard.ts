@@ -1,30 +1,69 @@
+import { IProduct } from '../../types';
 import { ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
-export interface IProductCard {
-    content: HTMLElement;
-}
+export class ProductCard extends Component<IProduct> {
+  protected _category: HTMLElement;
+  protected _title: HTMLElement;
+  protected _image: HTMLImageElement;
+  protected _price: HTMLElement;
+  protected _description?: HTMLElement;
+  protected _openButton?: HTMLButtonElement;
 
-export class ProductCard {
-  protected category: HTMLSpanElement;
-  protected title: HTMLHeadingElement;
-  protected image: HTMLImageElement;
-  protected price: HTMLSpanElement;
-  protected openButton: HTMLButtonElement;
+  constructor(container: HTMLElement, events: IEvents) {
+    super(container);
+    this._category = ensureElement<HTMLElement>(
+      '.card__category',
+      this.container
+    ) as HTMLElement;
+    this._title = ensureElement<HTMLElement>(
+      '.card__title',
+      this.container
+    ) as HTMLElement;
+    this._description = ensureElement<HTMLElement>(
+      '.card__text',
+      this.container
+    ) as HTMLElement;
+    this._image = ensureElement<HTMLImageElement>(
+      '.card__image',
+      this.container
+    ) as HTMLImageElement;
+    this._price = ensureElement<HTMLElement>(
+      '.card__price',
+      this.container
+    ) as HTMLElement;
+    this._openButton = ensureElement<HTMLButtonElement>(
+      '.gallery__item',
+      this.container
+    ) as HTMLButtonElement;
 
-  constructor(template: HTMLElement, protected events: IEvents){
-    this.category = ensureElement<HTMLSpanElement>('card__category')as HTMLSpanElement;
-    this.title = ensureElement<HTMLSpanElement>('card__title')as HTMLHeadingElement;
-    this.image = ensureElement<HTMLSpanElement>('card__image')as HTMLImageElement;
-    this.price = ensureElement<HTMLSpanElement>('card__price')as HTMLSpanElement;
-    this.openButton = ensureElement<HTMLSpanElement>('gallery__item')as HTMLButtonElement;
-
-    this.openButton.addEventListener('click', ()=>{
-      
-    })
+    this._openButton.addEventListener('click', () => {
+      events.emit('modalProduct: open');
+    });
   }
 
-  open(){
-    
+  set category(value: string) {
+    this.setText(this._category, value);
+  }
+
+  set title(value: string) {
+    this.setText(this._title, value);
+  }
+
+  set description(value: string) {
+    this.setText(this._description, value);
+  }
+
+  set image(value: string) {
+    this.setImage(this._image, value);
+  }
+
+  set price(value: number | null) {
+    if (value === null) {
+      this._price.textContent = 'Бесценно';
+    } else {
+      this.setText(this._price, `синапсов ${value}`);
+    }
   }
 }

@@ -1,43 +1,43 @@
 import { ensureElement } from "../../utils/utils";
+import { Component } from "../base/Component";
 import { IEvents } from "../base/events";
 
 interface IPage {
-  setCounter(value: number): void;
-  setGalleryCard(items: HTMLElement[]): void;
-  setLocked(value: boolean): void;
+  productList: HTMLElement[];
+  counter: number;
 }
 
-export class Page implements IPage {
-  protected counter: HTMLElement;
-  protected basket: HTMLButtonElement;
+export class Page extends Component<IPage> {
+  protected elementCounter: HTMLElement;
+  protected buttonBasket: HTMLButtonElement;
   protected galleryCard: HTMLElement;
   protected wrapper: HTMLElement;
 
-  constructor(protected container: HTMLElement, protected events: IEvents) {
-    this.container = container as HTMLElement;
-    this.counter = container.querySelector('.header__basket-counter');
-    this.galleryCard = container.querySelector('.catalog__items');
-    this.basket = container.querySelector('.header__basket');
+  constructor(container: HTMLElement, protected events: IEvents) {
+    super(container)
+    this.elementCounter = ensureElement('.header__basket-counter', this.container) as HTMLElement
+    this.galleryCard = ensureElement('.gallery', this.container) as HTMLElement;
+    this.buttonBasket = ensureElement('.header__basket', this.container) as HTMLButtonElement;
+    // this.wrapper = ensureElement('.page__wrapper', this.container);
 
-    this.basket.addEventListener('click', () => {
+    this.buttonBasket.addEventListener('click', () => {
       this.events.emit('basket:open');
     });
   }
 
-  setCounter(value: number) {
-    this.counter.textContent = String(value);
-    // this.setText(this._counter, String(value));
+  set counter (value: number) {
+    this.setText(this.elementCounter, value);
   }
 
-  setGalleryCard(items: HTMLElement[]) {
+  set productList(items: HTMLElement[]) {
     this.galleryCard.replaceChildren(...items);
   }
 
   setLocked(value: boolean) {
-    if (value) {
-      this.wrapper.classList.add('page__wrapper_locked');
-    } else {
-      this.wrapper.classList.remove('page__wrapper_locked');
-    }
+    // if (value) {
+    //   this.wrapper.classList.add('.page__wrapper_locked');
+    // } else {
+    //   this.wrapper.classList.remove('.page__wrapper_locked');
+    // }
   }
 }
