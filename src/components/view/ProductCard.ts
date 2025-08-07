@@ -14,13 +14,17 @@ export class ProductCard extends Component<IProduct> {
 
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
-    this.openButton = ensureElement('.gallery__item', this.container) as HTMLButtonElement;
+    this.openButton = this.container.querySelector('.gallery__item')    
     this._category = ensureElement('.card__category', this.container) as HTMLElement;
     this._title = ensureElement('.card__title', this.container) as HTMLElement;
     this._image = ensureElement('.card__image', this.container) as HTMLImageElement;
     this._price = ensureElement('.card__price', this.container) as HTMLElement;
-
-    this.openButton.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+    if(this.openButton){
+      this.openButton.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+    } else {
+      this.container.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+    }
+    
 
   }
 
