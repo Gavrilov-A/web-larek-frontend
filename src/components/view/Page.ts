@@ -11,14 +11,13 @@ export class Page extends Component<IPage> {
   protected elementCounter: HTMLElement;
   protected buttonBasket: HTMLButtonElement;
   protected galleryCard: HTMLElement;
-  protected wrapper: HTMLElement;
 
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container)
     this.elementCounter = ensureElement('.header__basket-counter', this.container) as HTMLElement
     this.galleryCard = ensureElement('.gallery', this.container) as HTMLElement;
     this.buttonBasket = ensureElement('.header__basket', this.container) as HTMLButtonElement;
-    // this.wrapper = ensureElement('.page__wrapper', this.container);
+
 
     this.buttonBasket.addEventListener('click', () => {
       this.events.emit('basket:open');
@@ -34,10 +33,10 @@ export class Page extends Component<IPage> {
   }
 
   setLocked(value: boolean) {
-    // if (value) {
-    //   this.wrapper.classList.add('.page__wrapper_locked');
-    // } else {
-    //   this.wrapper.classList.remove('.page__wrapper_locked');
-    // }
+    if (value) {
+      this.container.classList.add('.page__wrapper_locked');
+    } else {
+      this.container.classList.remove('.page__wrapper_locked');
+    }
   }
 }

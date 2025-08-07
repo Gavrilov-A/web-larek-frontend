@@ -8,12 +8,9 @@ import { ProductData } from './components/modelData/ProductData';
 import { ProductCard } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
 
-
 const events = new EventEmitter();
 const larekApi = new LarekApi(CDN_URL, API_URL);
 const productData = new ProductData(events);
-
-
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({ eventName, data }) => {
@@ -21,36 +18,26 @@ events.onAll(({ eventName, data }) => {
 });
 
 // Все шаблоны
-const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog') as HTMLTemplateElement;
-const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
-const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
-const orderPayTemplate = ensureElement<HTMLTemplateElement>('#order');
-const orderContactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+const cardCatalogTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
+const cardPreviewTemplate = ensureElement('#card-preview') as HTMLTemplateElement;
+const cardBasketTemplate = ensureElement('#card-basket') as HTMLTemplateElement;
+const basketTemplate = ensureElement('#basket') as HTMLTemplateElement;
+const orderPayTemplate = ensureElement('#order') as HTMLTemplateElement;
+const orderContactsTemplate = ensureElement('#contacts') as HTMLTemplateElement;
+const successTemplate = ensureElement('#success') as HTMLTemplateElement;
 
-
-
-const page = new Page(document.querySelector('.page'), events);
-
+const page = new Page(document.querySelector('.page__wrapper'), events);
 
 larekApi
 	.getProductList()
-	.then(data => productData.setProductList(data))
+	.then((data) => productData.setProductList(data))
 	.catch((err) => {
 		console.error(err);
 	});
 
-	events.on('productList: changed', ()=>{
-		const itemsHtmlArray = productData.getProductList().map(item => new ProductCard(cloneTemplate(cardCatalogTemplate), events).render({
-			category: item.category,
-			title: item.title,
-			image: item.image,
-			price: item.price,
-		}));
-		page.render({
-			productList:itemsHtmlArray
-		})
-		
-	})
-
+events.on('productList:changed', () => {
+	const itemsHtmlArray = productData.getProductList().map((item) => new ProductCard(cloneTemplate(cardCatalogTemplate), events).render(item));
+	page.render({
+		productList: itemsHtmlArray,
+	});
+});

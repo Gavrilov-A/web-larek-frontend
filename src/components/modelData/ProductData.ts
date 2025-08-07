@@ -9,7 +9,7 @@ export class ProductData {
 
     setProductList(items: IProduct[]) { //заполняем массив
         this.productList = items
-        this.events.emit('productList: changed');
+        this.events.emit('productList:changed');
     }
 
     getProductList(): IProduct[] {//получаем массив карточек товара

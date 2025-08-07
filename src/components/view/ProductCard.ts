@@ -4,43 +4,28 @@ import { Component } from '../base/Component';
 import { IEvents } from '../base/events';
 
 export class ProductCard extends Component<IProduct> {
+  protected itemId: string;
   protected _category: HTMLElement;
   protected _title: HTMLElement;
   protected _image: HTMLImageElement;
   protected _price: HTMLElement;
-  protected _description?: HTMLElement;
-  protected _openButton?: HTMLButtonElement;
+  protected _description: HTMLElement | null;
+  protected openButton: HTMLButtonElement;
 
-  constructor(container: HTMLElement, events: IEvents) {
+  constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
-    this._category = ensureElement<HTMLElement>(
-      '.card__category',
-      this.container
-    ) as HTMLElement;
-    this._title = ensureElement<HTMLElement>(
-      '.card__title',
-      this.container
-    ) as HTMLElement;
-    this._description = ensureElement<HTMLElement>(
-      '.card__text',
-      this.container
-    ) as HTMLElement;
-    this._image = ensureElement<HTMLImageElement>(
-      '.card__image',
-      this.container
-    ) as HTMLImageElement;
-    this._price = ensureElement<HTMLElement>(
-      '.card__price',
-      this.container
-    ) as HTMLElement;
-    this._openButton = ensureElement<HTMLButtonElement>(
-      '.gallery__item',
-      this.container
-    ) as HTMLButtonElement;
+    this.openButton = ensureElement('.gallery__item', this.container) as HTMLButtonElement;
+    this._category = ensureElement('.card__category', this.container) as HTMLElement;
+    this._title = ensureElement('.card__title', this.container) as HTMLElement;
+    this._image = ensureElement('.card__image', this.container) as HTMLImageElement;
+    this._price = ensureElement('.card__price', this.container) as HTMLElement;
 
-    this._openButton.addEventListener('click', () => {
-      events.emit('modalProduct: open');
-    });
+    this.openButton.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+
+  }
+
+  set id(value: string){
+    this.itemId = value;
   }
 
   set category(value: string) {
@@ -51,10 +36,6 @@ export class ProductCard extends Component<IProduct> {
     this.setText(this._title, value);
   }
 
-  set description(value: string) {
-    this.setText(this._description, value);
-  }
-
   set image(value: string) {
     this.setImage(this._image, value);
   }
@@ -63,7 +44,25 @@ export class ProductCard extends Component<IProduct> {
     if (value === null) {
       this._price.textContent = 'Бесценно';
     } else {
-      this.setText(this._price, `синапсов ${value}`);
+      this.setText(this._price, `${value} синапсов`);
     }
+  }
+
+}
+
+export class ProductCardPreview extends ProductCard{
+  protected _description: HTMLElement;
+  protected addBasketButton: HTMLButtonElement;
+  constructor(container: HTMLElement, protected events: IEvents){
+    super(container, events)
+    this.addBasketButton = ensureElement('.button', this.container) as HTMLButtonElement;
+
+    this.addBasketButton.addEventListener('click', ()=> {
+      events.emit('basket: add')
+    })
+    
+  }
+  set description(value: string) {
+    this.setText(this._description, value);
   }
 }
