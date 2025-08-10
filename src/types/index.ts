@@ -33,8 +33,8 @@ export interface IProductData {
 }
 
 export interface IOrderData {
-	products: IProduct[];
-	addProduct(product: TBasketItem): void;
+	productList: TBasketItem[];
+	addProduct(item: TBasketItem): void;
 	deleteProduct(idProduct: string): void;
 	getTotal(): number;
 	checkValidation(
@@ -43,6 +43,8 @@ export interface IOrderData {
 			| Record<keyof TOrderContacts, string>
 	): boolean;
 }
+
+export type TProductId = Pick<IProduct, 'id'>;
 
 export type TBasketItem = Pick<IProduct, 'id' | 'title' | 'price'>;
 

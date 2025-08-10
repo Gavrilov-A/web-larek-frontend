@@ -1,38 +1,51 @@
-import { ensureAllElements } from "../../utils/utils";
-import { IEvents } from "../base/events";
+import { TBasketItem } from '../../types';
+import { createElement, ensureElement } from '../../utils/utils';
+import { Component } from '../base/Component';
+import { IEvents } from '../base/events';
 
-export class BasketItemView {
-    protected count: HTMLSpanElement;
-    protected title: HTMLSpanElement;
-    protected price: HTMLSpanElement;
-    protected deleteButton: HTMLButtonElement;
-
-    constructor(protected container: HTMLElement, protected events: IEvents){
-        this.count = container.querySelector('basket__item-index');
-        this.title = container.querySelector('card__title');
-        this.price = container.querySelector('card__price');
-        this.deleteButton = container.querySelector('basket__item-delete');
-        this.deleteButton.addEventListener('click', ()=>{
-        })
-    }
-
-    set item(value: HTMLElement){
-      
-    }
-
+interface IBasket {
+	list: HTMLElement[];
+	totalPrice: number;
 }
 
-export class BasketView {
-    protected item: HTMLLIElement
-    protected list: [];
-    protected title: HTMLSpanElement;
-    protected totalPrice: HTMLSpanElement;
-    protected button: HTMLButtonElement;
+export class Basket extends Component<IBasket> {
+	protected _list: HTMLElement;
+	protected nextButton: HTMLButtonElement;
+	protected _totalPrice: HTMLElement;
 
-    constructor(protected container: HTMLElement, protected events: IEvents){
-        
-    }
+	constructor(protected container: HTMLElement, protected events: IEvents) {
+		super(container);
+		this._list = ensureElement('.basket__list', this.container) as HTMLElement;
+		this._totalPrice = ensureElement(
+			'.basket__price',
+			this.container
+		) as HTMLElement;
+		this.nextButton = container.querySelector(
+			'.basket__button'
+		) as HTMLButtonElement;
+		this.nextButton.addEventListener('click', () => {
+			events.emit('order:place');
+		});
 
+		this.list = [];
+	}
 
+	set list(items: HTMLElement[]) {
+		if (items.length) {
+			this._list.replaceChildren(...items);
+			this.setDisabled(this.nextButton, false);
+		} else {
+			this._list.replaceChildren(
+				createElement<HTMLParagraphElement>('p', {
+					textContent: 'Корзина пуста',
+				})
+			);
+			this.setDisabled(this.nextButton, true);
+		}
+	}
+
+	set totalPrice(value: number) {
+		this.setText(this._totalPrice, value);
+	}
 }
 

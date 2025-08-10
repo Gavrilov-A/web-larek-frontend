@@ -1,67 +1,43 @@
-import { ensureElement } from "../../utils/utils";
-import { Component } from "../base/Component";
-import { IEvents } from "../base/events";
+import {Component} from "../base/Component";
+import {ensureElement} from "../../utils/utils";
+import {IEvents} from "../base/events";
 
-// Интерфейс для данных, которые передаются в render
-export interface IModalData {
+interface IModal {
     content: HTMLElement;
 }
 
-// Вью модального окна
-export class Modal extends Component<IModalData>{
+export class Modal extends Component<IModal> {
     protected _closeButton: HTMLButtonElement;
     protected _content: HTMLElement;
 
     constructor(container: HTMLElement, protected events: IEvents) {
-        super(container)
+        super(container);
 
-        this._closeButton = ensureElement<HTMLButtonElement>(
-            '.modal__close',
-            this.container
-        );
-        this._content = ensureElement<HTMLElement>('.modal__content', this.container);
+        this._closeButton = ensureElement<HTMLButtonElement>('.modal__close', container);
+        this._content = ensureElement<HTMLElement>('.modal__content', container);
 
-        // Закрытие по крестику
         this._closeButton.addEventListener('click', this.close.bind(this));
-
-        // Закрытие по клику на фон (но не по контенту)
-        this.container.addEventListener('click', (event) => {
-            if (event.target === this.container) {
-                this.close();
-            }
-        });
-
-        // Предотвращение закрытия при клике внутри контента
-        this._content.addEventListener('click', (event) => {
-            event.stopPropagation();
-        });
+        this.container.addEventListener('click', this.close.bind(this));
+        this._content.addEventListener('click', (event) => event.stopPropagation());
     }
 
-    // Установка контента
     set content(value: HTMLElement) {
-        if (value) {
-            this._content.replaceChildren(value);
-        } else {
-            this._content.replaceChildren();
-        }
+        this._content.replaceChildren(value);
     }
 
-    // Открытие модального окна
-    open(): void {
+    open() {
         this.container.classList.add('modal_active');
         this.events.emit('modal:open');
     }
 
-    // Закрытие модального окна
-    close(): void {
+    close() {
         this.container.classList.remove('modal_active');
-        this.content = null; // Очистка контента
+        this.content = null;
         this.events.emit('modal:close');
     }
 
-    // Рендер и открытие модалки
-    render(data: IModalData): HTMLElement {
-        this.content = data.content;
+    render(data: IModal | {}): HTMLElement {
+        super.render(data);
         this.open();
         return this.container;
     }

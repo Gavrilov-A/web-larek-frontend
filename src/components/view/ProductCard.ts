@@ -9,7 +9,7 @@ export class ProductCard extends Component<IProduct> {
   protected _title: HTMLElement;
   protected _image: HTMLImageElement;
   protected _price: HTMLElement;
-  protected _description: HTMLElement | null;
+  protected _description: HTMLElement;
   protected openButton: HTMLButtonElement;
 
   constructor(container: HTMLElement, protected events: IEvents) {
@@ -20,12 +20,10 @@ export class ProductCard extends Component<IProduct> {
     this._image = ensureElement('.card__image', this.container) as HTMLImageElement;
     this._price = ensureElement('.card__price', this.container) as HTMLElement;
     if(this.openButton){
-      this.openButton.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+      this.openButton.addEventListener('click', ()=> this.events.emit('product:open', {id: this.itemId}))
     } else {
-      this.container.addEventListener('click', ()=> this.events.emit('modalProduct: open', {id: this.itemId}))
+      this.container.addEventListener('click', ()=> this.events.emit('product:open', {id: this.itemId}))
     }
-    
-
   }
 
   set id(value: string){
@@ -52,21 +50,34 @@ export class ProductCard extends Component<IProduct> {
     }
   }
 
+  
+
 }
 
 export class ProductCardPreview extends ProductCard{
   protected _description: HTMLElement;
-  protected addBasketButton: HTMLButtonElement;
+  protected button: HTMLButtonElement;
   constructor(container: HTMLElement, protected events: IEvents){
     super(container, events)
-    this.addBasketButton = ensureElement('.button', this.container) as HTMLButtonElement;
-
-    this.addBasketButton.addEventListener('click', ()=> {
-      events.emit('basket: add')
-    })
+    this.button = ensureElement('.button', this.container) as HTMLButtonElement;
     
   }
   set description(value: string) {
     this.setText(this._description, value);
   }
+
+  buttonStatus(isInBasket: boolean){
+    if (isInBasket) {
+      this.button.textContent = 'Удалить из корзины';
+      this.button.addEventListener('click',() => {
+        this.events.emit('product:removeBasket', { id: this.itemId });
+      });
+    } else {
+      this.button.textContent = 'В корзину';
+      this.button.addEventListener('click',() => {
+        this.events.emit('product:addBasket', { id: this.itemId });
+      });
+    }
+
+  } 
 }
