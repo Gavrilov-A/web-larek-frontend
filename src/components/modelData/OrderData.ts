@@ -10,17 +10,18 @@ import { IEvents } from '../base/events';
 
 export class OrderData implements IOrderData {
 	protected _productList: TBasketItem[];
-	protected _order: IOrder = {
-		payment: '',
-		email: '',
-		phone: '',
-		address: '',
-		total: 0,
-		items: [],
-	};
+	protected _order: IOrder;
 
 	constructor(protected events: IEvents) {
 		this._productList = [];
+		this._order = {
+			payment: '',
+			email: '',
+			phone: '',
+			address: '',
+			total: 0,
+			items: [],
+		};
 	}
 
 	set productList(items: TBasketItem[]) {
@@ -32,15 +33,12 @@ export class OrderData implements IOrderData {
 	}
 
 	addProduct(item: TBasketItem) {
-
-		    if (!this._productList.some(product => product.id === item.id)) {
-					if(item.price!==null)
-		        this._productList.push(item)
-		        this._order.items.push(item.id)
-		        this.events.emit('productAdded')
-		        console.log(this._productList)
-		    }
-		 else console.log('error')
+		if (!this._productList.some((product) => product.id === item.id)) {
+			if (item.price !== null) this._productList.push(item);
+			this._order.items.push(item.id);
+			this.events.emit('productAdded');
+			console.log(this._productList);
+		} else console.log('error');
 	}
 
 	deleteProduct(id: string) {
@@ -67,32 +65,36 @@ export class OrderData implements IOrderData {
 		this.events.emit('totalUpdated', this._order);
 	}
 
-	checkValidation(
+	checkValidation<T>(
 		data:
 			| Record<keyof TOrderPayment, string>
 			| Record<keyof TOrderContacts, string>
 	): boolean {
 		const errors: Record<string, string> = {};
-		
+
+		if (!this._order.payment) {
+			errors.payment = 'Способ оплаты не выбран';
+		}
+
 		if (!this._order.email) {
-		    errors.email = 'Email обязателен';
+			errors.email = 'Email обязателен';
 		}
 
 		if (!this._order.phone) {
-		    errors.phone = 'Телефон обязателен';
+			errors.phone = 'Телефон обязателен';
 		}
 
 		if (!this._order.address) {
-		    errors.address = 'Адрес обязателен';
+			errors.address = 'Адрес обязателен';
 		}
 
 		if (Object.keys(errors).length > 0) {
-		    this.events.emit('validationError', errors);
-		    return false;
+			this.events.emit('validationError', errors);
+			return false;
 		}
 
 		this._order.total = this.getTotal();
-		this.events.emit('orderValidated');
+		this.events.emit('orderValidated', data);
 		return true;
 	}
 }

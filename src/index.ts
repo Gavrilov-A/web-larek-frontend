@@ -12,7 +12,8 @@ import { Modal } from './components/view/Modal';
 import { Basket } from './components/view/Basket';
 import { OrderData } from './components/modelData/OrderData';
 import { BasketItem } from './components/view/BasketItem';
-import { FormPay } from './components/view/FormPay';
+import { FormOrder } from './components/view/FormOrder';
+
 
 const events = new EventEmitter();
 const larekApi = new LarekApi(CDN_URL, API_URL);
@@ -116,8 +117,8 @@ events.on('product:removeBasket', (data: TBasketItem) => {
 });
 
 events.on('order:place', ()=>{
-	const form = new FormPay(cloneTemplate(orderPayTemplate), events)
-	modal.render({ content: form.render() }); 
+	const form = new FormOrder(cloneTemplate(orderPayTemplate),events)
+	modal.render({ content: form.render()}); 
 })
 
 events.on('modal:open', () => {
