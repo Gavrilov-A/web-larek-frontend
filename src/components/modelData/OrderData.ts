@@ -104,7 +104,7 @@ export class OrderData implements IOrderData {
 	// 	return true;
 	// }
 
-	setOrderField(field: keyof TFormOrder | keyof TFormContacts, value: string) {
+	setOrderField(data: {field: keyof TFormOrder | keyof TFormContacts, value: string}) {
         this.order[field] = value;
 
         if (this.validateOrder()) {

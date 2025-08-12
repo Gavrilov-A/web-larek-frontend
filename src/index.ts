@@ -7,12 +7,13 @@ import { EventEmitter, IEvents } from './components/base/events';
 import { ProductData } from './components/modelData/ProductData'
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
-import { TBasketItem, TFormOrder, TProductId } from './types';
+import { TBasketItem, TFormContacts, TFormOrder, TProductId } from './types';
 import { Modal } from './components/view/Modal';
 import { Basket } from './components/view/Basket';
 import { OrderData } from './components/modelData/OrderData';
 import { BasketItem } from './components/view/BasketItem';
 import { FormOrder } from './components/view/FormOrder';
+import { IFormOrder } from './components/view/FormContacts';
 
 
 const events = new EventEmitter();
@@ -117,8 +118,25 @@ events.on('product:removeBasket', (data: TBasketItem) => {
 
 events.on('order:place', ()=>{
 	const form = new FormOrder(cloneTemplate(orderPayTemplate),events)
-	modal.render({ content: form}); 
+	const initialData: Partial<TFormOrder> & IFormOrder = {
+    payment: '',
+    address: '',
+    valid: false,
+    errors: []
+  };
+	modal.render({ content: form.render(initialData)}); 
 })
+
+events.on('formErrors:change', (errors: Partial<TFormOrder>)=>{
+		const form = new FormOrder<TFormOrder>(cloneTemplate(orderPayTemplate),events) 
+		const { payment, address } = errors;
+    form.valid = !payment && !address;
+    form.errors = Object.values({payment, address}).filter(i => !!i).join('; ');
+})
+
+events.on(/^order\..*:change/, (data: { field: keyof TFormOrder | keyof TFormContacts, value: string }) => {
+    orderData.setOrderField(data.field, data.value);
+});
 
 events.on('modal:open', () => {
 	page.setLocked(true);
