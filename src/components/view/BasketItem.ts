@@ -33,8 +33,11 @@ export class BasketItem extends Component<TBasketItem> {
 	set title(value: string) {
 		this.setText(this._title, value);
 	}
-
 	set price(value: number) {
 		this.setText(this._price, `${value} синапсов`);
+	}
+
+	setCount(value: number){
+		this.setText(this._count, value)
 	}
 }

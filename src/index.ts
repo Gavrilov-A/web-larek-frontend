@@ -7,7 +7,7 @@ import { EventEmitter, IEvents } from './components/base/events';
 import { ProductData } from './components/modelData/ProductData'
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
-import { TBasketItem, TProductId } from './types';
+import { TBasketItem, TFormOrder, TProductId } from './types';
 import { Modal } from './components/view/Modal';
 import { Basket } from './components/view/Basket';
 import { OrderData } from './components/modelData/OrderData';
@@ -36,6 +36,7 @@ const orderContactsTemplate = ensureElement('#contacts') as HTMLTemplateElement;
 const successTemplate = ensureElement('#success') as HTMLTemplateElement;
 
 const modal = new Modal(document.querySelector('.modal'), events);
+const basketItem = new BasketItem(cloneTemplate(cardBasketTemplate), events)
 
 events.on('productList:changed', () => {
 	const count = orderData.productList.length
@@ -73,13 +74,12 @@ events.on('product:open', (data: TProductId) => {
 });
 
 events.on('basket:open', () => {
-	const cardInBasket = orderData.productList;
 	const priceBasket = orderData.getTotal();
-	const cardList = cardInBasket.map((item) =>
-		new BasketItem(cloneTemplate(cardBasketTemplate), events).render(item)
+	const cardInBasket = orderData.productList.map((item, index) =>
+		basketItem.render(item)
 	);
 	const basket = new Basket(cloneTemplate(basketTemplate), events).render({
-		list: cardList,
+		list: cardInBasket,
 		totalPrice: priceBasket,
 	});
 
@@ -87,7 +87,6 @@ events.on('basket:open', () => {
 });
 
 events.on('product:addBasket', (data: TBasketItem) => {
-	
 	const card = productData.getProductById(data.id);
 	orderData.addProduct({
 		id: card.id,

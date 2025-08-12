@@ -26,7 +26,8 @@ export class FormOrder<T> extends Component<IFormOrder> {
         this.paymentButtons.forEach(button => {
             button.addEventListener('click', ()=>{
                 const field = 'payment' as keyof T;
-                const value = button.name
+                const value = button.name;
+                this.onInputChange(field, value);
             })
         })
 
