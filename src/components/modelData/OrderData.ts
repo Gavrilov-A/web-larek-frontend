@@ -1,16 +1,18 @@
 import {
+	FormErrors,
 	IOrder,
 	IOrderData,
 	IProduct,
 	TBasketItem,
-	TOrderContacts,
-	TOrderPayment,
+	TFormContacts,
+	TFormOrder,
 } from '../../types';
 import { IEvents } from '../base/events';
 
 export class OrderData implements IOrderData {
 	protected _productList: TBasketItem[];
 	protected _order: IOrder;
+	formErrors: FormErrors = {};
 
 	constructor(protected events: IEvents) {
 		this._productList = [];
@@ -30,6 +32,10 @@ export class OrderData implements IOrderData {
 
 	get productList() {
 		return this._productList;
+	}
+
+	set order(orderFields: IOrder){
+		this._order = orderFields
 	}
 
 	addProduct(item: TBasketItem) {
@@ -65,36 +71,63 @@ export class OrderData implements IOrderData {
 		this.events.emit('totalUpdated', this._order);
 	}
 
-	checkValidation<T>(
-		data:
-			| Record<keyof TOrderPayment, string>
-			| Record<keyof TOrderContacts, string>
-	): boolean {
-		const errors: Record<string, string> = {};
+	// checkValidation<T>(
+	// 	data:
+	// 		| Record<keyof TOrderPayment, string>
+	// 		| Record<keyof TOrderContacts, string>
+	// ): boolean {
+	// 	const errors: Record<string, string> = {};
 
+	// 	if (!this._order.payment) {
+	// 		errors.payment = 'Способ оплаты не выбран';
+	// 	}
+
+	// 	if (!this._order.email) {
+	// 		errors.email = 'Email обязателен';
+	// 	}
+
+	// 	if (!this._order.phone) {
+	// 		errors.phone = 'Телефон обязателен';
+	// 	}
+
+	// 	if (!this._order.address) {
+	// 		errors.address = 'Адрес обязателен';
+	// 	}
+
+	// 	if (Object.keys(errors).length > 0) {
+	// 		this.events.emit('validationError', errors);
+	// 		return false;
+	// 	}
+
+	// 	this._order.total = this.getTotal();
+	// 	this.events.emit('orderValidated', data);
+	// 	return true;
+	// }
+
+	setOrderField(field: keyof TFormOrder | keyof TFormContacts, value: string) {
+        this.order[field] = value;
+
+        if (this.validateOrder()) {
+            this.events.emit('order:ready', this.order);
+        }
+    }
+
+    validateOrder() {
+        const errors: typeof this.formErrors = {};
 		if (!this._order.payment) {
-			errors.payment = 'Способ оплаты не выбран';
+			errors.payment = 'Необходимо указать способ оплаты';
 		}
-
-		if (!this._order.email) {
-			errors.email = 'Email обязателен';
-		}
-
-		if (!this._order.phone) {
-			errors.phone = 'Телефон обязателен';
-		}
-
 		if (!this._order.address) {
-			errors.address = 'Адрес обязателен';
+			errors.address = 'Необходимо указать адрес';
 		}
-
-		if (Object.keys(errors).length > 0) {
-			this.events.emit('validationError', errors);
-			return false;
-		}
-
-		this._order.total = this.getTotal();
-		this.events.emit('orderValidated', data);
-		return true;
-	}
+        if (!this.order.email) {
+            errors.email = 'Необходимо указать email';
+        }
+        if (!this.order.phone) {
+            errors.phone = 'Необходимо указать телефон';
+        }
+        this.formErrors = errors;
+        this.events.emit('formErrors:change', this.formErrors);
+        return Object.keys(errors).length === 0;
+    }
 }

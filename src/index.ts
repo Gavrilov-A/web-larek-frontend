@@ -4,7 +4,7 @@ import { LarekApi } from './components/LarekApi';
 import { API_URL, CDN_URL } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { EventEmitter, IEvents } from './components/base/events';
-import { ProductData } from './components/modelData/ProductData';
+import { ProductData } from './components/modelData/ProductData'
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
 import { TBasketItem, TProductId } from './types';
@@ -118,7 +118,7 @@ events.on('product:removeBasket', (data: TBasketItem) => {
 
 events.on('order:place', ()=>{
 	const form = new FormOrder(cloneTemplate(orderPayTemplate),events)
-	modal.render({ content: form.render()}); 
+	modal.render({ content: form}); 
 })
 
 events.on('modal:open', () => {

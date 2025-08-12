@@ -38,17 +38,14 @@ export interface IOrderData {
 	addProduct(item: TBasketItem): void;
 	deleteProduct(idProduct: string): void;
 	getTotal(): number;
-	checkValidation(
-		data:
-			| Record<keyof TOrderPayment, string>
-			| Record<keyof TOrderContacts, string>
-	): boolean;
 }
 
 export type TProductId = Pick<IProduct, 'id'>;
 
 export type TBasketItem = Pick<IProduct, 'id' | 'title' | 'price'>;
 
-export type TOrderPayment = Pick<IOrder, 'payment' | 'address'>;
+export type TFormOrder = Pick<IOrder, 'payment' | 'address'>;
 
-export type TOrderContacts = Pick<IOrder, 'email' | 'phone'>;
+export type TFormContacts = Pick<IOrder, 'email' | 'phone'>;
+
+export type FormErrors = Partial<Record<keyof IOrder, string>>;

@@ -10,25 +10,13 @@ export interface IFormOrder {
 }
 
 export class FormOrder<T> extends Component<IFormOrder> {
-    protected paymentButtons: NodeListOf<HTMLButtonElement>;
     protected _errors: HTMLElement;
     protected submitButton: HTMLButtonElement;
 
     constructor(protected container: HTMLFormElement, protected events: IEvents) {
         super(container);
-        this.paymentButtons = this.container.querySelectorAll('.order__buttons');
         this._errors = ensureElement('.form__errors', this.container);
-        this.submitButton = ensureElement(
-            '.order__button',
-            this.container
-        ) as HTMLButtonElement;
-
-        this.paymentButtons.forEach(button => {
-            button.addEventListener('click', ()=>{
-                const field = 'payment' as keyof T;
-                const value = button.name
-            })
-        })
+        this.submitButton = ensureElement<HTMLButtonElement>('button[type=submit]', this.container);
 
         this.container.addEventListener('input', (e: Event) => {
             const target = e.target as HTMLInputElement;
@@ -59,9 +47,9 @@ export class FormOrder<T> extends Component<IFormOrder> {
         this.setText(this._errors, value);
     }
 
-    render(data: Partial<T> & IFormOrder) {
-        const { valid, errors, ...inputs } = data;
-        super.render({ valid, errors });
+   render(data: Partial<T> & IFormOrder) {
+        const {valid, errors, ...inputs} = data;
+        super.render({valid, errors});
         Object.assign(this, inputs);
         return this.container;
     }
