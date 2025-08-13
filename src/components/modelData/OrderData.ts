@@ -4,7 +4,6 @@ import {
 	IOrderData,
 	IProduct,
 	TBasketItem,
-	TFormContacts,
 	TFormOrder,
 } from '../../types';
 import { IEvents } from '../base/events';
@@ -71,40 +70,8 @@ export class OrderData implements IOrderData {
 		this.events.emit('totalUpdated', this._order);
 	}
 
-	// checkValidation<T>(
-	// 	data:
-	// 		| Record<keyof TOrderPayment, string>
-	// 		| Record<keyof TOrderContacts, string>
-	// ): boolean {
-	// 	const errors: Record<string, string> = {};
-
-	// 	if (!this._order.payment) {
-	// 		errors.payment = 'Способ оплаты не выбран';
-	// 	}
-
-	// 	if (!this._order.email) {
-	// 		errors.email = 'Email обязателен';
-	// 	}
-
-	// 	if (!this._order.phone) {
-	// 		errors.phone = 'Телефон обязателен';
-	// 	}
-
-	// 	if (!this._order.address) {
-	// 		errors.address = 'Адрес обязателен';
-	// 	}
-
-	// 	if (Object.keys(errors).length > 0) {
-	// 		this.events.emit('validationError', errors);
-	// 		return false;
-	// 	}
-
-	// 	this._order.total = this.getTotal();
-	// 	this.events.emit('orderValidated', data);
-	// 	return true;
-	// }
-
-	setOrderField(data: {field: keyof TFormOrder | keyof TFormContacts, value: string}) {
+	setOrderField(field: keyof TFormOrder, value: string) {
+		
         this.order[field] = value;
 
         if (this.validateOrder()) {

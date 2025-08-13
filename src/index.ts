@@ -7,13 +7,14 @@ import { EventEmitter, IEvents } from './components/base/events';
 import { ProductData } from './components/modelData/ProductData'
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
-import { TBasketItem, TFormContacts, TFormOrder, TProductId } from './types';
+import { TBasketItem, TFormOrder, TProductId } from './types';
 import { Modal } from './components/view/Modal';
 import { Basket } from './components/view/Basket';
 import { OrderData } from './components/modelData/OrderData';
 import { BasketItem } from './components/view/BasketItem';
-import { FormOrder } from './components/view/FormOrder';
-import { IFormOrder } from './components/view/FormContacts';
+import { Form } from './components/view/Form';
+import { Order } from './components/view/Order';
+
 
 
 const events = new EventEmitter();
@@ -21,6 +22,7 @@ const larekApi = new LarekApi(CDN_URL, API_URL);
 const productData = new ProductData(events);
 const orderData = new OrderData(events);
 const page = new Page(document.querySelector('.page__wrapper'), events);
+
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({ eventName, data }) => {
@@ -38,6 +40,7 @@ const successTemplate = ensureElement('#success') as HTMLTemplateElement;
 
 const modal = new Modal(document.querySelector('.modal'), events);
 const basketItem = new BasketItem(cloneTemplate(cardBasketTemplate), events)
+const order = new Order(cloneTemplate(orderPayTemplate), events)
 
 events.on('productList:changed', () => {
 	const count = orderData.productList.length
@@ -117,24 +120,33 @@ events.on('product:removeBasket', (data: TBasketItem) => {
 });
 
 events.on('order:place', ()=>{
-	const form = new FormOrder(cloneTemplate(orderPayTemplate),events)
-	const initialData: Partial<TFormOrder> & IFormOrder = {
-    payment: '',
-    address: '',
-    valid: false,
-    errors: []
-  };
-	modal.render({ content: form.render(initialData)}); 
+	modal.render({
+        content: order.render({
+			
+            valid: false,
+            errors: []
+        })
+    });
+	 
 })
 
-events.on('formErrors:change', (errors: Partial<TFormOrder>)=>{
-		const form = new FormOrder<TFormOrder>(cloneTemplate(orderPayTemplate),events) 
-		const { payment, address } = errors;
-    form.valid = !payment && !address;
-    form.errors = Object.values({payment, address}).filter(i => !!i).join('; ');
-})
+// Изменилось состояние валидации формы
+events.on('formErrors:change', (errors: Partial<TFormOrder>) => {
+	// const payment = order.payment;
+    
+    // // Обновляем состояние заказа
+    // orderData.setOrderField('payment', payment || '');
+    
+    // // Валидируем заказ
+    // orderData.validateOrder();
+    const {payment, address } = errors;
+    order.valid = !payment && !address;
+    order.errors = Object.values({payment, address }).filter(i => !!i).join('; ');
+});
 
-events.on(/^order\..*:change/, (data: { field: keyof TFormOrder | keyof TFormContacts, value: string }) => {
+// Изменилось одно из полей
+events.on(/^order\..*:change/, (data: { field: keyof TFormOrder, value: string }) => {
+
     orderData.setOrderField(data.field, data.value);
 });
 
