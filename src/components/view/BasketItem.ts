@@ -25,6 +25,7 @@ export class BasketItem extends Component<TBasketItem> {
 		this.deleteButton.addEventListener('click', () => {
 			this.events.emit('product:removeBasket', { id: this.itemId });
 		});
+		
 	}
 
 	set id(value: string) {

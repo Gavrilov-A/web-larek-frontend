@@ -45,11 +45,11 @@ export class Form<T> extends Component<IFormState> {
         this.setText(this._errors, value);
     }
 
+
     render(state: Partial<T> & IFormState) {
         const {valid, errors, ...inputs} = state;
         super.render({valid, errors});
         Object.assign(this, inputs);
         return this.container;
-
     }
 }

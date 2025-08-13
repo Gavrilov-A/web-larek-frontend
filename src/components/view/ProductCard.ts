@@ -50,8 +50,6 @@ export class ProductCard extends Component<IProduct> {
     }
   }
 
-  
-
 }
 
 export class ProductCardPreview extends ProductCard{
@@ -68,16 +66,23 @@ export class ProductCardPreview extends ProductCard{
 
   buttonStatus(isInBasket: boolean){
     if (isInBasket) {
-      this.button.textContent = 'Удалить из корзины';
+      this.setText(this.button, 'Удалить');
       this.button.addEventListener('click',() => {
         this.events.emit('product:removeBasket', { id: this.itemId });
       });
     } else {
-      this.button.textContent = 'В корзину';
+       this.setText(this.button,'В корзину');
       this.button.addEventListener('click',() => {
         this.events.emit('product:addBasket', { id: this.itemId });
       });
     }
-
   } 
+
+  buttonDisabled(priceless: boolean){
+    if(priceless){
+      this.setText(this.button, 'Недоступно')
+      this.setDisabled(this.button, priceless);
+    }
+    
+  }
 }

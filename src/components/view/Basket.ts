@@ -24,7 +24,7 @@ export class Basket extends Component<IBasket> {
 			'.basket__button'
 		) as HTMLButtonElement;
 		this.nextButton.addEventListener('click', () => {
-			events.emit('order:place');
+			events.emit('basket:place');
 		});
 
 		this.list = [];
@@ -45,7 +45,7 @@ export class Basket extends Component<IBasket> {
 	}
 
 	set totalPrice(value: number) {
-		this.setText(this._totalPrice, value);
+		this.setText(this._totalPrice, `${value} синапсов`);
 	}
 }
 
