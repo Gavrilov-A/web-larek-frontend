@@ -71,8 +71,8 @@ export class OrderData implements IOrderData {
 	}
 
 	setOrderField(field: keyof TFormOrder, value: string) {
-		
-        this.order[field] = value;
+		console.log(value)
+        this._order[field] = value;
 
         if (this.validateOrder()) {
             this.events.emit('order:ready', this.order);
@@ -87,10 +87,10 @@ export class OrderData implements IOrderData {
 		if (!this._order.address) {
 			errors.address = 'Необходимо указать адрес';
 		}
-        if (!this.order.email) {
+        if (!this._order.email) {
             errors.email = 'Необходимо указать email';
         }
-        if (!this.order.phone) {
+        if (!this._order.phone) {
             errors.phone = 'Необходимо указать телефон';
         }
         this.formErrors = errors;
