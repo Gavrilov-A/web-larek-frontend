@@ -1,3 +1,4 @@
+import { Success } from './components/view/FormSuccess';
 import './scss/styles.scss';
 
 import { LarekApi } from './components/LarekApi';
@@ -7,12 +8,17 @@ import { EventEmitter, IEvents } from './components/base/events';
 import { ProductData } from './components/modelData/ProductData';
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
-import { TBasketItem, TFormContacts, TFormOrder, TProductId } from './types';
+import {
+	IOrderResult,
+	TBasketItem,
+	TFormContacts,
+	TFormOrder,
+	TProductId,
+} from './types';
 import { Modal } from './components/view/Modal';
 import { Basket } from './components/view/Basket';
 import { OrderData } from './components/modelData/OrderData';
 import { BasketItem } from './components/view/BasketItem';
-import { Form } from './components/view/Form';
 import { FormOrder } from './components/view/FormOrder';
 import { FormContacts } from './components/view/FormContacts';
 
@@ -61,14 +67,13 @@ events.on('product:open', (data: TProductId) => {
 	const cardInfo = productData.getProductById(data.id);
 	const cardInBasket = orderData.productList;
 	const isInBasket = cardInBasket.some((item) => item.id === data.id);
-	const priceless = cardInfo.price === null
-	console.log(priceless)
+	const priceless = cardInfo.price === null;
 	const card = new ProductCardPreview(
 		cloneTemplate(cardPreviewTemplate),
 		events
 	);
 	card.buttonStatus(isInBasket);
-	card.buttonDisabled(priceless)
+	card.buttonDisabled(priceless);
 
 	modal.render({
 		content: card.render({
@@ -91,7 +96,7 @@ events.on('basket:open', () => {
 		list: cardInBasket,
 		totalPrice: priceBasket,
 	});
-
+	console.log(orderData);
 	modal.render({ content: basket });
 });
 
@@ -120,11 +125,10 @@ events.on('product:removeBasket', (data: TBasketItem) => {
 	modal.render({
 		content: basket,
 	});
-	// const count = orderData.productList.length;
-	// page.render({ counter: count });
 });
 
-events.on('basket:place', () => {
+events.on('basket:submit', () => {
+	orderData.updateTotal();
 	modal.render({
 		content: order.render({
 			valid: false,
@@ -142,10 +146,45 @@ events.on('order:submit', () => {
 	});
 });
 
+events.on('contacts:submit', () => {
+	larekApi
+		.postOrder(orderData.order)
+		.then((result: IOrderResult) => {
+			const basket = new Basket(cloneTemplate(basketTemplate), events);
+			const count = orderData.productList.length;
+			console.log(count);
+			const success = new Success(cloneTemplate(successTemplate), {
+				onClick: () => {
+					modal.close();
+				},
+			});
+			orderData.clearBasket();
+			basket.clearBasket();
+			
+			const priceBasket = orderData.getTotal();
+			const cardList = orderData.productList.map((item) =>
+				new BasketItem(cloneTemplate(cardBasketTemplate), events).render(item)
+			);
+			basket.render({
+				list: cardList,
+				totalPrice: priceBasket,
+			});
+			
+			page.render({ counter: count });
+
+			modal.render({
+				content: success.render({ total: result.total }),
+			});
+		})
+		.catch((err: Error) => {
+			console.error(err);
+		});
+});
+
 // Изменилось состояние валидации формы заказа
 events.on('formErrorsOrder:change', (errors: Partial<TFormOrder>) => {
 	const { payment, address } = errors;
-	order.valid = !payment && !address 
+	order.valid = !payment && !address;
 	order.errors = Object.values({ payment, address })
 		.filter((i) => !!i)
 		.join('; ');
@@ -154,7 +193,7 @@ events.on('formErrorsOrder:change', (errors: Partial<TFormOrder>) => {
 // Изменилось состояние валидации формы контактов
 events.on('formErrorsContacts:change', (errors: Partial<TFormContacts>) => {
 	const { email, phone } = errors;
-	contacts.valid = !email && !phone 
+	contacts.valid = !email && !phone;
 	contacts.errors = Object.values({ email, phone })
 		.filter((i) => !!i)
 		.join('; ');
@@ -169,13 +208,11 @@ events.on(
 );
 
 events.on(
-	/^order\..*:change/,
+	/^contacts\..*:change/,
 	(data: { field: keyof TFormContacts; value: string }) => {
 		orderData.setContactsField(data.field, data.value);
 	}
 );
-
-
 
 events.on('modal:open', () => {
 	page.setLocked(true);
@@ -184,7 +221,8 @@ events.on('modal:open', () => {
 events.on('modal:close', () => {
 	page.setLocked(false);
 	order.reset();
-	
+	contacts.reset();
+	orderData.clearDataForms();
 });
 
 larekApi

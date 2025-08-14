@@ -2,7 +2,6 @@ import {
 	FormErrors,
 	IOrder,
 	IOrderData,
-	IProduct,
 	TBasketItem,
 	TFormContacts,
 	TFormOrder,
@@ -26,6 +25,10 @@ export class OrderData implements IOrderData {
 		};
 	}
 
+	get order(){
+		return this._order
+	}
+
 	set productList(items: TBasketItem[]) {
 		this._productList = items;
 	}
@@ -34,16 +37,11 @@ export class OrderData implements IOrderData {
 		return this._productList;
 	}
 
-	set order(orderFields: IOrder) {
-		this._order = orderFields;
-	}
-
 	addProduct(item: TBasketItem) {
 		if (!this._productList.some((product) => product.id === item.id)) {
 			if (item.price !== null) this._productList.push(item);
 			this._order.items.push(item.id);
 			this.events.emit('productAdded');
-			console.log(this._productList);
 		} else console.log('error');
 	}
 
@@ -71,12 +69,30 @@ export class OrderData implements IOrderData {
 		this.events.emit('totalUpdated', this._order);
 	}
 
+	clearDataForms(){
+		this._order.payment = '';
+		this._order.address = '';
+		this._order.email = '';
+		this._order.phone = '';
+	}
+
+	clearBasket(){
+		this._order = {
+			payment: '',
+			email: '',
+			phone: '',
+			address: '',
+			total: 0,
+			items: [],
+		};
+	}
+
 	setOrderField(field: keyof TFormOrder, value: string) {
 		console.log(value);
 		this._order[field] = value;
 
 		if (this.validateOrder()) {
-			this.events.emit('order:ready', this.order);
+			this.events.emit('order:ready', this._order);
 		}
 	}
 
@@ -85,7 +101,7 @@ export class OrderData implements IOrderData {
 		this._order[field] = value;
 
 		if (this.validateContacts()) {
-			this.events.emit('order:ready', this.order);
+			this.events.emit('contacts:ready', this._order);
 		}
 	}
 	validateContacts() {
