@@ -4,18 +4,18 @@ import { Form } from "./Form";
 
 
 export class FormOrder extends Form<TFormOrder> {
-	private paymentButtons: NodeListOf<HTMLButtonElement>;
-	private selectedPayment: string | null = null;
+	protected paymentButtons: NodeListOf<HTMLButtonElement>;
+	protected selectedPayment: string ;
 
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
-		// Получаем кнопки оплаты
+	
 		this.paymentButtons = container.querySelectorAll('.button_alt');
 
 		this.paymentButtons.forEach((button) => {		
 			button.classList.remove('button-active');
 		});
-		// Добавляем обработчики на кнопки оплаты
+
 		this.paymentButtons.forEach((button) => {		
 			button.addEventListener('click', () => {
 				this._handlePaymentSelect(button.name);
@@ -27,7 +27,7 @@ export class FormOrder extends Form<TFormOrder> {
 		});
 	}
 
-	private _handlePaymentSelect(paymentMethod: string) {
+	protected _handlePaymentSelect(paymentMethod: string) {
 		// Сохраняем выбранный метод оплаты
 		this.selectedPayment = paymentMethod;
 

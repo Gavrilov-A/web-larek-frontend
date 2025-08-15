@@ -38,7 +38,7 @@ export class BasketItem extends Component<TBasketItem> {
 		this.setText(this._price, `${value} синапсов`);
 	}
 
-	setCount(value: number){
-		this.setText(this._count, value)
+	setCounter(value: number){
+		this.setText(this._count, String(value))
 	}
 }

@@ -9,12 +9,12 @@ import {
 import { IEvents } from '../base/events';
 
 export class OrderData implements IOrderData {
-	protected _productList: TBasketItem[];
+	protected _basket: TBasketItem[];
 	protected _order: IOrder;
-	formErrors: FormErrors = {};
+	protected formErrors: FormErrors;
 
 	constructor(protected events: IEvents) {
-		this._productList = [];
+		this._basket = [];
 		this._order = {
 			payment: '',
 			email: '',
@@ -23,33 +23,32 @@ export class OrderData implements IOrderData {
 			total: 0,
 			items: [],
 		};
+		this.formErrors = {};
 	}
 
-	get order(){
-		return this._order
+	get order() {
+		return this._order;
 	}
 
-	set productList(items: TBasketItem[]) {
-		this._productList = items;
+	set basket(items: TBasketItem[]) {
+		this._basket = items;
 	}
 
-	get productList() {
-		return this._productList;
+	get basket() {
+		return this._basket;
 	}
 
 	addProduct(item: TBasketItem) {
-		if (!this._productList.some((product) => product.id === item.id)) {
-			if (item.price !== null) this._productList.push(item);
+		if (!this._basket.some((product) => product.id === item.id)) {
+			if (item.price !== null) this._basket.push(item);
 			this._order.items.push(item.id);
 			this.events.emit('productAdded');
 		} else console.log('error');
 	}
 
 	deleteProduct(id: string) {
-		if (this._productList.some((item) => item.id === id)) {
-			this._productList = this._productList.filter(
-				(itemId) => itemId.id !== id
-			);
+		if (this._basket.some((item) => item.id === id)) {
+			this._basket = this._basket.filter((itemId) => itemId.id !== id);
 			this._order.items = this._order.items.filter((itemId) => itemId !== id);
 			this.updateTotal();
 			this.events.emit('productRemoved', this._order.items);
@@ -58,7 +57,7 @@ export class OrderData implements IOrderData {
 
 	getTotal(): number {
 		let total = 0;
-		this._productList.forEach((item) => {
+		this._basket.forEach((item) => {
 			total += item.price;
 		});
 		return total || 0;
@@ -69,14 +68,14 @@ export class OrderData implements IOrderData {
 		this.events.emit('totalUpdated', this._order);
 	}
 
-	clearDataForms(){
+	clearDataForms() {
 		this._order.payment = '';
 		this._order.address = '';
 		this._order.email = '';
 		this._order.phone = '';
 	}
 
-	clearBasket(){
+	clearBasket() {
 		this._order = {
 			payment: '',
 			email: '',
@@ -85,10 +84,10 @@ export class OrderData implements IOrderData {
 			total: 0,
 			items: [],
 		};
+		this.basket = [];
 	}
 
 	setOrderField(field: keyof TFormOrder, value: string) {
-		console.log(value);
 		this._order[field] = value;
 
 		if (this.validateOrder()) {
@@ -97,7 +96,6 @@ export class OrderData implements IOrderData {
 	}
 
 	setContactsField(field: keyof TFormContacts, value: string) {
-		console.log(value);
 		this._order[field] = value;
 
 		if (this.validateContacts()) {

@@ -6,7 +6,7 @@ interface ISuccessOrder {
     onClick: () => void;
 }
 
-export class Success extends Component<IOrderResult> {
+export class FormSuccess extends Component<IOrderResult> {
     protected _close: HTMLElement;
     protected _total: HTMLElement;
 
@@ -21,6 +21,6 @@ export class Success extends Component<IOrderResult> {
     }
 
     set total(value: string){
-        this.setText(this._total, value)
+        this.setText(this._total, `${value} синапсов`)
     }
 }

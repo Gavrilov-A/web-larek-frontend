@@ -1,10 +1,9 @@
-import { Success } from './components/view/FormSuccess';
 import './scss/styles.scss';
 
 import { LarekApi } from './components/LarekApi';
 import { API_URL, CDN_URL } from './utils/constants';
 import { cloneTemplate, ensureElement } from './utils/utils';
-import { EventEmitter, IEvents } from './components/base/events';
+import { EventEmitter } from './components/base/events';
 import { ProductData } from './components/modelData/ProductData';
 import { ProductCard, ProductCardPreview } from './components/view/ProductCard';
 import { Page } from './components/view/Page';
@@ -21,12 +20,13 @@ import { OrderData } from './components/modelData/OrderData';
 import { BasketItem } from './components/view/BasketItem';
 import { FormOrder } from './components/view/FormOrder';
 import { FormContacts } from './components/view/FormContacts';
+import { FormSuccess } from './components/view/FormSuccess';
 
 const events = new EventEmitter();
 const larekApi = new LarekApi(CDN_URL, API_URL);
 const productData = new ProductData(events);
 const orderData = new OrderData(events);
-const page = new Page(document.querySelector('.page__wrapper'), events);
+
 
 // Чтобы мониторить все события, для отладки
 events.onAll(({ eventName, data }) => {
@@ -46,12 +46,13 @@ const orderPayTemplate = ensureElement('#order') as HTMLTemplateElement;
 const orderContactsTemplate = ensureElement('#contacts') as HTMLTemplateElement;
 const successTemplate = ensureElement('#success') as HTMLTemplateElement;
 
+const page = new Page(document.querySelector('.page__wrapper'), events);
 const modal = new Modal(document.querySelector('.modal'), events);
 const order = new FormOrder(cloneTemplate(orderPayTemplate), events);
 const contacts = new FormContacts(cloneTemplate(orderContactsTemplate), events);
 
 events.on('productList:changed', () => {
-	const count = orderData.productList.length;
+	const count = orderData.basket.length;
 	const itemsHtmlArray = productData
 		.getProductList()
 		.map((item) =>
@@ -65,7 +66,7 @@ events.on('productList:changed', () => {
 
 events.on('product:open', (data: TProductId) => {
 	const cardInfo = productData.getProductById(data.id);
-	const cardInBasket = orderData.productList;
+	const cardInBasket = orderData.basket;
 	const isInBasket = cardInBasket.some((item) => item.id === data.id);
 	const priceless = cardInfo.price === null;
 	const card = new ProductCardPreview(
@@ -88,15 +89,17 @@ events.on('product:open', (data: TProductId) => {
 });
 
 events.on('basket:open', () => {
-	const priceBasket = orderData.getTotal();
-	const cardInBasket = orderData.productList.map((item) =>
-		new BasketItem(cloneTemplate(cardBasketTemplate), events).render(item)
-	);
+	const cardInBasket = orderData.basket.map((item, index) =>{
+		const basketItem = new BasketItem(cloneTemplate(cardBasketTemplate), events)
+		basketItem.setCounter(index+1)
+		return basketItem.render(item)
+	}
+		
+);
 	const basket = new Basket(cloneTemplate(basketTemplate), events).render({
 		list: cardInBasket,
-		totalPrice: priceBasket,
+		totalPrice: orderData.getTotal(),
 	});
-	console.log(orderData);
 	modal.render({ content: basket });
 });
 
@@ -107,24 +110,25 @@ events.on('product:addBasket', (data: TBasketItem) => {
 		title: card.title,
 		price: card.price,
 	});
-	const count = orderData.productList.length;
+	const count = orderData.basket.length;
 	page.render({ counter: count });
 });
 
 events.on('product:removeBasket', (data: TBasketItem) => {
 	orderData.deleteProduct(data.id);
-	const cardInBasket = orderData.productList;
-	const priceBasket = orderData.getTotal();
-	const cardList = cardInBasket.map((item) =>
-		new BasketItem(cloneTemplate(cardBasketTemplate), events).render(item)
-	);
+	const cardInBasket = orderData.basket.map((item, index) =>{
+		const basketItem = new BasketItem(cloneTemplate(cardBasketTemplate), events)
+		basketItem.setCounter(index+1)
+		return basketItem.render(item)})
 	const basket = new Basket(cloneTemplate(basketTemplate), events).render({
-		list: cardList,
-		totalPrice: priceBasket,
+		list: cardInBasket,
+		totalPrice: orderData.getTotal(),
 	});
+	page.render({counter: cardInBasket.length})
 	modal.render({
 		content: basket,
 	});
+
 });
 
 events.on('basket:submit', () => {
@@ -150,27 +154,13 @@ events.on('contacts:submit', () => {
 	larekApi
 		.postOrder(orderData.order)
 		.then((result: IOrderResult) => {
-			const basket = new Basket(cloneTemplate(basketTemplate), events);
-			const count = orderData.productList.length;
-			console.log(count);
-			const success = new Success(cloneTemplate(successTemplate), {
+			const success = new FormSuccess(cloneTemplate(successTemplate), {
 				onClick: () => {
 					modal.close();
 				},
 			});
 			orderData.clearBasket();
-			basket.clearBasket();
-			
-			const priceBasket = orderData.getTotal();
-			const cardList = orderData.productList.map((item) =>
-				new BasketItem(cloneTemplate(cardBasketTemplate), events).render(item)
-			);
-			basket.render({
-				list: cardList,
-				totalPrice: priceBasket,
-			});
-			
-			page.render({ counter: count });
+			page.render({ counter: orderData.basket.length });
 
 			modal.render({
 				content: success.render({ total: result.total }),

@@ -28,7 +28,8 @@ export interface IProductData {
 }
 
 export interface IOrderData {
-	productList: TBasketItem[];
+	basket: TBasketItem[];
+	order: IOrder;
 	addProduct(item: TBasketItem): void;
 	deleteProduct(idProduct: string): void;
 	getTotal(): number;

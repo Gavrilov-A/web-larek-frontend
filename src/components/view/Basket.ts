@@ -10,7 +10,7 @@ interface IBasket {
 
 export class Basket extends Component<IBasket> {
 	protected _list: HTMLElement;
-	protected nextButton: HTMLButtonElement;
+	protected orderButton: HTMLButtonElement;
 	protected _totalPrice: HTMLElement;
 
 	constructor(protected container: HTMLElement, protected events: IEvents) {
@@ -20,10 +20,10 @@ export class Basket extends Component<IBasket> {
 			'.basket__price',
 			this.container
 		) as HTMLElement;
-		this.nextButton = container.querySelector(
+		this.orderButton = container.querySelector(
 			'.basket__button'
 		) as HTMLButtonElement;
-		this.nextButton.addEventListener('click', () => {
+		this.orderButton.addEventListener('click', () => {
 			events.emit('basket:submit');
 		});
 
@@ -34,14 +34,14 @@ export class Basket extends Component<IBasket> {
 	set list(items: HTMLElement[]) {
 		if (items.length) {
 			this._list.replaceChildren(...items);
-			this.setDisabled(this.nextButton, false);
+			this.setDisabled(this.orderButton, false);
 		} else {
 			this._list.replaceChildren(
 				createElement<HTMLParagraphElement>('p', {
 					textContent: 'Корзина пуста',
 				})
 			);
-			this.setDisabled(this.nextButton, true);
+			this.setDisabled(this.orderButton, true);
 		}
 	}
 	set totalPrice(value: number) {
@@ -49,30 +49,7 @@ export class Basket extends Component<IBasket> {
 	}
 
 	get totalPrice(){
-		console.log(this.totalPrice)
 		return this.totalPrice
-	}
-
-	clearBasket(){
-		  // Очищаем список товаров в DOM
-    this._list.replaceChildren(
-        createElement<HTMLParagraphElement>('p', {
-            textContent: 'Корзина пуста',
-        })
-    );
-
-    // Обнуляем отображение цены
-    this.totalPrice = 0;
-
-    // Блокируем кнопку "Далее"
-    this.setDisabled(this.nextButton, true);
-
-    // Очищаем внутренний массив элементов
-    this.list = []; // Это вызовет сеттер, который уже обрабатывает логику
-
-    // Можно добавить событие, если нужно уведомить другие части приложения
-    this.events.emit('basket:cleared');
-		
 	}
 }
 
